@@ -35,15 +35,15 @@ export const SignInPage: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-[510px]">
+      <div className="w-full max-w-lg">
         {/* Card - exact styling from design */}
-        <div className="bg-card border border-gray-100 rounded-[32px] shadow px-12 py-12">
+        <div className="bg-card border rounded-2xl border-gray-100 shadow-md px-12 py-12">
           {/* Logo */}
           <Logo />
 
           {/* Heading */}
           <div className="text-center mb-8">
-            <h1 className="text-[34px] text-gray-800 font-medium text-text-primary mb-2 tracking-normal leading-tight text-shadow-md">
+            <h1 className="text-[34px] text-gray-800 font-medium mb-2 tracking-normal leading-tight text-shadow-md">
               Welcome to Docvia
             </h1>
             <p className="text-[15px] text-text-secondary font-normal">
