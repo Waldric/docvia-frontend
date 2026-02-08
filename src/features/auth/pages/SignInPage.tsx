@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Logo } from '../components/Logo';
 import { SignInForm } from '../components/SignInForm';
 import type { SignInFormData } from '../types';
+import { motion } from 'framer-motion';
 
 export const SignInPage: React.FC = () => {
   const navigate = useNavigate();
@@ -34,19 +35,23 @@ export const SignInPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-[510px]">
+    <motion.div
+  initial={{ opacity: 0, y: 0 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 1, ease: 'easeIn' }}
+  className = "min-h-screen w-full bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-135">
         {/* Card - exact styling from design */}
-        <div className="bg-card border border-gray-100 rounded-[32px] shadow px-12 py-12">
+        <div className="bg-card border border-gray-100 rounded-3xl shadow-xl px-12 py-12 select-none">
           {/* Logo */}
           <Logo />
 
           {/* Heading */}
           <div className="text-center mb-8">
-            <h1 className="text-[35px] text-gray-800 font-medium mb-2 tracking-normal leading-tight">
+            <h1 className="text-[35px] text-gray-800 font-medium text-shadow-md mb-2 tracking-normal leading-tight select-none">
               Welcome to Docvia
             </h1>
-            <p className="text-[15px] text-text-secondary font-normal">
+            <p className="text-[15px] text-text-secondary font-normal select-none">
               Enter you details to continue
             </p>
           </div>
@@ -60,6 +65,6 @@ export const SignInPage: React.FC = () => {
           />
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

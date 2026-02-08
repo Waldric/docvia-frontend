@@ -22,7 +22,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             className={cn(
               'flex h-12 w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm text-text-primary placeholder:text-text-muted',
               'transition-colors duration-200',
-              'focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary',
+              'focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary',
               'disabled:cursor-not-allowed disabled:opacity-50',
               error && 'border-red-500 focus:ring-red-500/20 focus:border-red-500',
               rightIcon && 'pr-11',
@@ -32,7 +32,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             {...props}
           />
           {rightIcon && (
-            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted">
+            <div className="absolute right-5 top-1/2 -translate-y-1/2 text-text-muted">
               {rightIcon}
             </div>
           )}

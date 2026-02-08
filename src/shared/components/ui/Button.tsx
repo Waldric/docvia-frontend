@@ -20,12 +20,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const baseStyles = 'inline-flex items-center justify-center rounded-lg font-normal transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+    const baseStyles = 'inline-flex items-center justify-center rounded-lg font-normal transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-offset-2 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed';
 
     const variants = {
-      primary: 'bg-primary text-white hover:bg-primary-dark focus:ring-primary/50 shadow-sm',
-      secondary: 'bg-gray-200 text-text-primary hover:bg-gray-300 focus:ring-gray-400/50',
-      ghost: 'bg-transparent text-text-primary hover:bg-gray-100 focus:ring-gray-400/50',
+      primary: 'bg-primary text-white hover:bg-primary-dark focus:ring-primary/50 shadow-xs',
+      secondary: 'bg-gray-200 text-text-primary hover:bg-gray-500 focus:ring-gray-400/50',
+      ghost: 'bg-transparent text-text-primary hover:bg-gray-200 focus:ring-gray-400/50',
       link: 'bg-transparent text-primary hover:text-primary-dark underline-offset-4 hover:underline focus:ring-primary/50',
     };
 
