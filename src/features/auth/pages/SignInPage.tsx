@@ -43,7 +43,7 @@ export const SignInPage: React.FC = () => {
 
           {/* Heading */}
           <div className="text-center mb-8">
-            <h1 className="text-[34px] text-gray-800 font-medium text-text-primary mb-2 tracking-normal leading-tight text-shadow-md">
+            <h1 className="text-[35px] text-gray-800 font-medium mb-2 tracking-normal leading-tight">
               Welcome to Docvia
             </h1>
             <p className="text-[15px] text-text-secondary font-normal">
