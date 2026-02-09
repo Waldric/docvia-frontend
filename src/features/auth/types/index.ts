@@ -12,6 +12,10 @@ export interface SignUpFormData {
   agreeToTerms: boolean;
 }
 
+export interface ForgotPasswordFormData {
+  email: string;
+}
+
 export interface AuthUser {
   id: string;
   email: string;
