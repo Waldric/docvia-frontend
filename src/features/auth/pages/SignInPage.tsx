@@ -39,8 +39,7 @@ export const SignInPage: React.FC = () => {
   transition={{ duration: 0.5, ease: 'easeIn' }}
   className = "min-h-screen w-full bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
-        {/* Card - exact styling from design */}
-        <div className="bg-card border border-gray-100 rounded-3xl shadow-xl px-12 py-12 select-none">
+        <div className="bg-card border border-gray-100 rounded-3xl shadow-lg px-12 py-12 select-none">
           {/* Logo */}
           <Logo />
 
@@ -50,7 +49,7 @@ export const SignInPage: React.FC = () => {
               Welcome to Docvia
             </h1>
             <p className="text-[15px] text-text-secondary font-normal select-none">
-              [Tagline Here]
+              Turn reading into progress.
             </p>
           </div>
 

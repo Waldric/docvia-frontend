@@ -4,12 +4,6 @@ import { Input } from "../../../shared/components/ui/Input";
 import { Button } from "../../../shared/components/ui/Button";
 import { Checkbox } from "../../../shared/components/ui/Checkbox";
 import type { SignInFormData } from "../types";
-import React, { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
-import { Input } from "../../../shared/components/ui/Input";
-import { Button } from "../../../shared/components/ui/Button";
-import { Checkbox } from "../../../shared/components/ui/Checkbox";
-import type { SignInFormData } from "../types";
 
 interface SignInFormProps {
   onSubmit: (data: SignInFormData) => void;
@@ -25,8 +19,6 @@ export const SignInForm: React.FC<SignInFormProps> = ({
   isLoading = false,
 }) => {
   const [formData, setFormData] = useState<SignInFormData>({
-    email: "",
-    password: "",
     email: "",
     password: "",
     rememberMe: false,
@@ -48,15 +40,6 @@ export const SignInForm: React.FC<SignInFormProps> = ({
           e.target.type === "checkbox" ? e.target.checked : e.target.value,
       }));
     };
-  const handleChange =
-    (field: keyof SignInFormData) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setFormData((prev) => ({
-        ...prev,
-        [field]:
-          e.target.type === "checkbox" ? e.target.checked : e.target.value,
-      }));
-    };
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-5">
@@ -65,7 +48,6 @@ export const SignInForm: React.FC<SignInFormProps> = ({
         type="email"
         placeholder="Email"
         value={formData.email}
-        onChange={handleChange("email")}
         onChange={handleChange("email")}
         required
         autoComplete="email"

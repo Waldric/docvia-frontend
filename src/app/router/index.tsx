@@ -1,7 +1,9 @@
+import React from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { SignInPage } from '../../features/auth/pages/SignInPage';
 import { SignUpPage } from '../../features/auth/pages/SignUpPage';
 import { ForgotPasswordPage } from '../../features/auth/pages/ForgotPasswordPage';
+import { CreateNewPasswordPage } from '../../features/auth/pages/CreateNewPasswordPage';
 
 const router = createBrowserRouter([
   {
@@ -20,7 +22,11 @@ const router = createBrowserRouter([
     path: '/forgot-password',
     element: <ForgotPasswordPage />,
   },
-  // Add more routes here as you build more pages
+  {
+    path: '/create-new-password',
+    element: <CreateNewPasswordPage />,
+  },
+  // Add more routes here 
 ]);
 
 export const AppRouter: React.FC = () => {

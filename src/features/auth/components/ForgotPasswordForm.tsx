@@ -74,7 +74,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       </div>
 
       {/* Recovery Instructions */}
-      <p className="text-sm text-text-secondary pt-2">
+      <p className="text-sm text-text-secondary pt-2 select-none">
         Enter the email address associated with your account and we'll send you a link to reset your password.
       </p>
 
@@ -82,7 +82,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
       <Button
         type="submit"
         variant="primary"
-        className="w-full mt-6"
+        className="w-full mt-6 select-none"
         isLoading={isLoading}
       >
         Send Reset Link
@@ -93,7 +93,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
         <button
           type="button"
           onClick={onSignInClick}
-          className="text-primary hover:text-primary-dark font-normal transition-colors cursor-pointer disabled:cursor-not-allowed"
+          className="text-primary hover:text-primary-dark font-normal transition-colors cursor-pointer disabled:cursor-not-allowed select-none"
           disabled={isLoading}
         >
           Back to Sign In

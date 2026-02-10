@@ -13,7 +13,6 @@ interface SignUpFormProps {
 
 export const SignUpForm: React.FC<SignUpFormProps> = ({
   onSubmit,
-  onSignInClick,
   isLoading = false,
 }) => {
   const [formData, setFormData] = useState<SignUpFormData>({
