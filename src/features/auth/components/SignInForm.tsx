@@ -68,7 +68,6 @@ export const SignInForm: React.FC<SignInFormProps> = ({
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             className="hover:text-text-primary transition-colors focus:outline-hidden cursor-pointer disabled:cursor-not-allowed"
-
             tabIndex={-1}
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
@@ -99,20 +98,19 @@ export const SignInForm: React.FC<SignInFormProps> = ({
       <Button
         type="submit"
         variant="primary"
-        className="w-full mt-4"
+        className="w-full mt-4 font-semibold"
         isLoading={isLoading}
       >
         Sign In
       </Button>
 
       {/* Sign Up Link */}
-      <div className="text-center text-sm text-text-secondary pt-2">
+      <div className="text-center text-sm text-text-secondary pt-1 mb-10 select-none">
         Don't have an account?{" "}
         <button
           type="button"
           onClick={onSignUpClick}
           className="text-primary hover:text-primary-dark font-normal transition-colors cursor-pointer disabled:cursor-not-allowed"
-
           disabled={isLoading}
         >
           Sign Up
@@ -121,3 +119,4 @@ export const SignInForm: React.FC<SignInFormProps> = ({
     </form>
   );
 };
+

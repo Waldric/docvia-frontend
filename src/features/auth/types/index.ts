@@ -4,6 +4,18 @@ export interface SignInFormData {
   rememberMe: boolean;
 }
 
+export interface SignUpFormData {
+  email: string;
+  username: string;
+  password: string;
+  confirmPassword: string;
+  agreeToTerms: boolean;
+}
+
+export interface ForgotPasswordFormData {
+  email: string;
+}
+
 export interface AuthUser {
   id: string;
   email: string;

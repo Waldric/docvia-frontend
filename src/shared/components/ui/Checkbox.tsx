@@ -30,7 +30,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         {label && (
           <label
             htmlFor={checkboxId}
-            className="ml-2.5 text-sm text-text-secondary cursor-pointer select-none font-normal"
+            className="ml-3 text-sm text-text-secondary cursor-pointer select-none font-normal"
           >
             {label}
           </label>

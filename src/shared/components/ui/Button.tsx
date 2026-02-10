@@ -24,8 +24,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary: 'bg-primary text-white hover:bg-primary-dark focus:ring-primary/50 shadow-xs',
-      secondary: 'bg-gray-200 text-text-primary hover:bg-gray-300 focus:ring-gray-400/50',
-      ghost: 'bg-transparent text-text-primary hover:bg-gray-100 focus:ring-gray-400/50',
+      secondary: 'bg-gray-200 text-text-primary hover:bg-gray-500 focus:ring-gray-400/50',
+      ghost: 'bg-transparent text-text-primary hover:bg-gray-200 focus:ring-gray-400/50',
       link: 'bg-transparent text-primary hover:text-primary-dark underline-offset-4 hover:underline focus:ring-primary/50',
     };
 
