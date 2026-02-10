@@ -25,13 +25,11 @@ export const SignInPage: React.FC = () => {
   };
 
   const handleSignUpClick = () => {
-    // navigate('/signup');
-    alert('Navigate to Sign Up page');
+    navigate('/signup');
   };
 
   const handleForgotPasswordClick = () => {
-    // navigate('/forgot-password');
-    alert('Navigate to Forgot Password page');
+    navigate('/forgot-password');
   };
 
   return (
