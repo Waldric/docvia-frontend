@@ -5,14 +5,16 @@ import type { ForgotPasswordFormData } from "../types";
 
 interface ForgotPasswordFormProps {
   onSubmit: (data: ForgotPasswordFormData) => void;
-  onSignInClick: () => void;
+  onBackToSignIn: () => void;
   isLoading?: boolean;
+  success?: boolean;
 }
 
 export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
   onSubmit,
-  onSignInClick,
+  onBackToSignIn,
   isLoading = false,
+  success = false,
 }) => {
   const [formData, setFormData] = useState<ForgotPasswordFormData>({
     email: "",
@@ -57,46 +59,45 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-4">
-      {/* Email Input */}
-      <div className="space-y-1">
-        <Input
-          type="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          autoComplete="email"
-          disabled={isLoading}
-        />
-        {errors.email && (
-          <p className="text-sm text-red-500">{errors.email}</p>
-        )}
-      </div>
+      {!success && (
+        <>
+          {/* Email Input */}
+          <div className="space-y-1">
+            <Input
+              type="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              autoComplete="email"
+              disabled={isLoading}
+            />
+            {errors.email && (
+              <p className="text-sm text-red-500">{errors.email}</p>
+            )}
+          </div>
 
-      {/* Recovery Instructions */}
-      <p className="text-sm text-text-secondary pt-2 select-none">
-        Enter the email address associated with your account and we'll send you a link to reset your password.
-      </p>
-
-      {/* Send Reset Link Button */}
-      <Button
-        type="submit"
-        variant="primary"
-        className="w-full mt-6 select-none"
-        isLoading={isLoading}
-      >
-        Send Reset Link
-      </Button>
+          {/* Send Reset Link Button */}
+          <Button
+            type="submit"
+            variant="primary"
+            className="w-full mt-6 select-none"
+            isLoading={isLoading}
+          >
+            Send Reset Link
+          </Button>
+        </>
+      )}
 
       {/* Back to Sign In Link */}
       <div className="text-center text-sm text-text-secondary pt-2">
         <button
           type="button"
-          onClick={onSignInClick}
+          onClick={onBackToSignIn}
           className="text-primary hover:text-primary-dark font-normal transition-colors cursor-pointer disabled:cursor-not-allowed select-none"
           disabled={isLoading}
         >
-          Back to Sign In
+          {success ? '← Back to Sign In' : 'Back to Sign In'}
         </button>
       </div>
     </form>
