@@ -1,27 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Logo } from '../components/Logo';
 import { SignInForm } from '../components/SignInForm';
 import type { SignInFormData } from '../types';
 import { motion } from 'framer-motion';
+import { useAuth } from '../../../shared/contexts/AuthContext';
 
 export const SignInPage: React.FC = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = React.useState(false);
+  const { login, loginWithGoogle } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSignIn = async (data: SignInFormData) => {
     setIsLoading(true);
+    setError(null);
     
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    console.log('Sign in data:', data);
-    
-    // TODO: Implement actual authentication logic
-    setIsLoading(false);
-    // navigate('/dashboard');
-    
-    alert('Sign in successful! (Mock)');
+    try {
+      await login(data.email, data.password);
+      // Navigation will be handled by auth state change
+      navigate('/dashboard'); // Or wherever your main app is
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Sign in failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    try {
+      await loginWithGoogle();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Google sign-in failed. Please try again.');
+    }
   };
 
   const handleSignUpClick = () => {
@@ -34,10 +46,11 @@ export const SignInPage: React.FC = () => {
 
   return (
     <motion.div
-  initial={{ opacity: 0, y: 0 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.5, ease: 'easeIn' }}
-  className = "min-h-screen w-full bg-background flex items-center justify-center p-4">
+      initial={{ opacity: 0, y: 0 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: 'easeIn' }}
+      className="min-h-screen w-full bg-background flex items-center justify-center p-4"
+    >
       <div className="w-full max-w-lg">
         <div className="bg-card border border-gray-100 rounded-3xl shadow-lg px-12 py-12 select-none">
           {/* Logo */}
@@ -53,11 +66,19 @@ export const SignInPage: React.FC = () => {
             </p>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              {error}
+            </div>
+          )}
+
           {/* Form */}
           <SignInForm
             onSubmit={handleSignIn}
             onSignUpClick={handleSignUpClick}
             onForgotPasswordClick={handleForgotPasswordClick}
+            onGoogleSignIn={handleGoogleSignIn}
             isLoading={isLoading}
           />
         </div>
