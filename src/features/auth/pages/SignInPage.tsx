@@ -11,17 +11,10 @@ export const SignInPage: React.FC = () => {
 
   const handleSignIn = async (data: SignInFormData) => {
     setIsLoading(true);
-    
-    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    
     console.log('Sign in data:', data);
-    
-    // TODO: Implement actual authentication logic
     setIsLoading(false);
-    // navigate('/dashboard');
-    
-    alert('Sign in successful! (Mock)');
+    navigate("/dashboard");
   };
 
   const handleSignUpClick = () => {
