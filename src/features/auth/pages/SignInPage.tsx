@@ -34,6 +34,10 @@ export const SignInPage: React.FC = () => {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Google sign-in failed. Please try again.');
     }
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    console.log('Sign in data:', data);
+    setIsLoading(false);
+    navigate("/dashboard");
   };
 
   const handleSignUpClick = () => {

@@ -1,14 +1,19 @@
 import React from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+
 import { SignInPage } from "../../features/auth/pages/SignInPage";
 import { SignUpPage } from "../../features/auth/pages/SignUpPage";
 import { ForgotPasswordPage } from "../../features/auth/pages/ForgotPasswordPage";
 import { CreateNewPasswordPage } from "../../features/auth/pages/CreateNewPasswordPage";
+import DashboardPage from "../../features/dashboard/pages/DashboardPage";
+import ProgressPage from "../../features/dashboard/pages/ProgressPage";
+import SettingsPage from "../../features/dashboard/pages/SettingsPage";
+import DashboardLayout from "../../features/dashboard/components/DashboardLayout";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <SignInPage />,
+    element: <Navigate to="/signin" replace />,
   },
   {
     path: "/signin",
@@ -23,10 +28,37 @@ const router = createBrowserRouter([
     element: <ForgotPasswordPage />,
   },
   {
-    path: "/reset-password",
+    path: "/create-new-password",
     element: <CreateNewPasswordPage />,
   },
-  // Add more routes here
+  {
+    path: "/dashboard",
+    element: (
+      <DashboardLayout>
+        <DashboardPage />
+      </DashboardLayout>
+    ),
+  },
+  {
+    path: "/progress",
+    element: (
+      <DashboardLayout>
+        <ProgressPage />
+      </DashboardLayout>
+    ),
+  },
+  {
+    path: "/settings",
+    element: (
+      <DashboardLayout>
+        <SettingsPage />
+      </DashboardLayout>
+    ),
+  },
+  {
+    path: "*",
+    element: <Navigate to="/signin" replace />,
+  },
 ]);
 
 export const AppRouter: React.FC = () => {

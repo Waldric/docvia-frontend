@@ -1,11 +1,12 @@
 import { AppRouter } from './router';
 import { AuthProvider } from '../shared/contexts/AuthContext';
+import { ThemeProvider } from '../shared/contexts/ThemeContext.tsx';
 
 function App() {
   return (
-    <AuthProvider>
+    <ThemeProvider>
       <AppRouter />
-    </AuthProvider>
+    </ThemeProvider>
   );
 }
 
