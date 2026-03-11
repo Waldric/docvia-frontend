@@ -1,32 +1,32 @@
-import React from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { SignInPage } from '../../features/auth/pages/SignInPage';
-import { SignUpPage } from '../../features/auth/pages/SignUpPage';
-import { ForgotPasswordPage } from '../../features/auth/pages/ForgotPasswordPage';
-import { CreateNewPasswordPage } from '../../features/auth/pages/CreateNewPasswordPage';
+import React from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { SignInPage } from "../../features/auth/pages/SignInPage";
+import { SignUpPage } from "../../features/auth/pages/SignUpPage";
+import { ForgotPasswordPage } from "../../features/auth/pages/ForgotPasswordPage";
+import { CreateNewPasswordPage } from "../../features/auth/pages/CreateNewPasswordPage";
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <SignInPage />,
   },
   {
-    path: '/signin',
+    path: "/signin",
     element: <SignInPage />,
   },
   {
-    path: '/signup',
+    path: "/signup",
     element: <SignUpPage />,
   },
   {
-    path: '/forgot-password',
+    path: "/forgot-password",
     element: <ForgotPasswordPage />,
   },
   {
-    path: '/create-new-password',
+    path: "/reset-password",
     element: <CreateNewPasswordPage />,
   },
-  // Add more routes here 
+  // Add more routes here
 ]);
 
 export const AppRouter: React.FC = () => {
