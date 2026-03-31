@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronRight, Home, FileText, Settings, Upload } from 'lucide-react';
+import { ChevronRight, Home, FileText, Settings, Upload, Map } from 'lucide-react'; // Added Map icon
 import NavItem from './NavItem';
 import FileRow from './FileRow';
 import UserCard from './UserCard';
@@ -28,6 +28,7 @@ export default function Sidebar({ uploadedFiles = MOCK_FILES, onFileSelect }: Si
 
   const navItems = [
     { icon: <Home size={16} />, label: 'Dashboard', path: '/dashboard' },
+    { icon: <Map size={16} />, label: 'Roadmap', path: '/roadmap' }, // ← NEW
     { icon: <FileText size={16} />, label: 'Progress', path: '/progress' },
     { icon: <Settings size={16} />, label: 'Settings', path: '/settings' },
   ];
@@ -40,7 +41,7 @@ export default function Sidebar({ uploadedFiles = MOCK_FILES, onFileSelect }: Si
           {/* Brand */}
           <div className="flex items-center gap-3 mb-6">
             <div className="h-12 w-12 rounded-xl overflow-hidden">
-              <img src="/assets/favicon/docvia_favicon.png" alt="Docvia" className="w-full h-full object-contain" />
+              <img src="/logo.png" alt="Docvia" className="w-full h-full object-contain" />
             </div>
             <span className="text-xl font-bold text-gray-600 dark:text-gray-300">Docvia</span>
           </div>

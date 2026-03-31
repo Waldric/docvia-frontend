@@ -7,11 +7,11 @@ import type { DocumentItem, SortMode, TypeFilter } from "../types";
 const mockDocuments: DocumentItem[] = [
   {
     id: 1,
-    title: "Aish Shibal",
-    subtitle: "De putang koreanong bisaya",
+    title: "Testing Techniques",
+    subtitle: "Testing techniques in test case development",
     type: "book",
     lastOpened: "2026-02-10",
-    coverImage: "/sample-image.jpg",
+    coverImage: "/assets/images/testing.png",
   },
   {
     id: 2,
@@ -19,7 +19,7 @@ const mockDocuments: DocumentItem[] = [
     subtitle: "Reading preview text",
     type: "report",
     lastOpened: "2026-02-18",
-    coverImage: "/sample-image.jpg",
+    coverImage: "/assets/images/research.jpg",
   },
   {
     id: 3,
@@ -27,7 +27,7 @@ const mockDocuments: DocumentItem[] = [
     subtitle: "Sprint call highlights",
     type: "report",
     lastOpened: "2026-01-27",
-    coverImage: "/sample-image.jpg",
+    coverImage: "/assets/images/meeting.jpg",
   },
   {
     id: 4,
@@ -35,7 +35,7 @@ const mockDocuments: DocumentItem[] = [
     subtitle: "Component library documentation",
     type: "book",
     lastOpened: "2026-02-15",
-    coverImage: "/sample-image.jpg",
+    coverImage: "/assets/images/design.png",
   },
 ];
 

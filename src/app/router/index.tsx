@@ -8,6 +8,7 @@ import { CreateNewPasswordPage } from "../../features/auth/pages/CreateNewPasswo
 import DashboardPage from "../../features/dashboard/pages/DashboardPage";
 import ProgressPage from "../../features/dashboard/pages/ProgressPage";
 import SettingsPage from "../../features/dashboard/pages/SettingsPage";
+import RoadmapPage from "../../features/roadmap/pages/RoadmapPage";
 import DashboardLayout from "../../features/dashboard/components/DashboardLayout";
 
 const router = createBrowserRouter([
@@ -36,6 +37,14 @@ const router = createBrowserRouter([
     element: (
       <DashboardLayout>
         <DashboardPage />
+      </DashboardLayout>
+    ),
+  },
+  {
+    path: "/roadmap",
+    element: (
+      <DashboardLayout>
+        <RoadmapPage />
       </DashboardLayout>
     ),
   },
