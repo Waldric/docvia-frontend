@@ -40,13 +40,10 @@ const router = createBrowserRouter([
       </DashboardLayout>
     ),
   },
+  // ── Roadmap renders fullscreen (no sidebar/topbar) ──
   {
     path: "/roadmap",
-    element: (
-      <DashboardLayout>
-        <RoadmapPage />
-      </DashboardLayout>
-    ),
+    element: <RoadmapPage />,
   },
   {
     path: "/progress",

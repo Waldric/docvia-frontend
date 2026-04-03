@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import type { Milestone, Position, CarScreenPosition } from '../types';
+import type { Milestone, Position } from '../types';
 import {
   approximatePathLength,
   getCarPositionAtProgress,
   getPathTangentAngle,
-  svgToCanvasCoords,
 } from '../utils/pathCalculations';
 
 interface UseRoadmapAnimationProps {
@@ -17,8 +16,12 @@ interface UseRoadmapAnimationProps {
   svgViewBox: { width: number; height: number };
   /** Rendered container dimensions (pixels) */
   containerRect: { width: number; height: number };
-  /** Callback — called whenever the car should move */
-  onCarMove: (pos: CarScreenPosition) => void;
+  /**
+   * Optional callback — called whenever the car position updates.
+   * x/y are SVG-space coordinates; angle is the road tangent in radians.
+   * No-op by default (kept for API compatibility).
+   */
+  onCarMove?: (pos: { x: number; y: number; angle: number }) => void;
 }
 
 export function useRoadmapAnimation({
@@ -26,8 +29,6 @@ export function useRoadmapAnimation({
   positions,
   currentMilestoneIndex,
   pathEl,
-  svgViewBox,
-  containerRect,
   onCarMove,
 }: UseRoadmapAnimationProps) {
   const [animatedProgress, setAnimatedProgress] = useState(0);
@@ -41,28 +42,25 @@ export function useRoadmapAnimation({
   useEffect(() => {
     if (milestones.length <= 1) return;
 
-    const target =
-      currentMilestoneIndex / (milestones.length - 1);
-
+    const target = currentMilestoneIndex / (milestones.length - 1);
     let start: number | null = null;
     const startVal = animatedProgress;
     const duration = 1100;
 
     const step = (timestamp: number) => {
       if (!start) start = timestamp;
-      const elapsed = timestamp - start;
-      const raw = Math.min(elapsed / duration, 1);
+      const elapsed  = timestamp - start;
+      const raw      = Math.min(elapsed / duration, 1);
       // Ease out cubic
-      const eased = 1 - Math.pow(1 - raw, 3);
-      const current = startVal + (target - startVal) * eased;
+      const eased    = 1 - Math.pow(1 - raw, 3);
+      const current  = startVal + (target - startVal) * eased;
       setAnimatedProgress(current);
 
-      // Drive car position on each animation frame
-      if (positions.length > 0 && containerRect.width > 0) {
+      // Notify car position (SVG space)
+      if (onCarMove && positions.length > 0) {
         const svgPt = getCarPositionAtProgress(current, positions, pathEl);
-        const canvasPt = svgToCanvasCoords(svgPt, svgViewBox, containerRect);
         const angle = getPathTangentAngle(current, positions, pathEl);
-        onCarMove({ x: canvasPt.x, y: canvasPt.y, angle });
+        onCarMove({ x: svgPt.x, y: svgPt.y, angle });
       }
 
       if (raw < 1) requestAnimationFrame(step);
@@ -72,7 +70,7 @@ export function useRoadmapAnimation({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMilestoneIndex, milestones.length]);
 
-  // Detect newly unlocked milestones (for unlock animation)
+  // Detect newly unlocked milestones
   useEffect(() => {
     const currentCompleted = new Set(
       milestones.filter((m) => m.isCompleted).map((m) => m.id)

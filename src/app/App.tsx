@@ -1,4 +1,4 @@
-import { AppRouter } from './router';
+import { AppRouter } from './router/router_index.tsx';
 import { ThemeProvider } from '../shared/contexts/ThemeContext.tsx';
 
 function App() {

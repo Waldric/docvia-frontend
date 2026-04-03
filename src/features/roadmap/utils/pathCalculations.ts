@@ -59,9 +59,9 @@ export function approximatePathLength(positions: Position[]): number {
 }
 
 /**
- * Get the {x, y} point on the path at a given progress (0–1)
- * using an SVGPathElement ref for precision.
- * Falls back to linear interpolation between positions.
+ * Get the {x, y} point on the path at a given progress (0–1).
+ * Uses SVGPathElement.getPointAtLength for accuracy when available,
+ * falls back to linear interpolation between positions.
  */
 export function getCarPositionAtProgress(
   progress: number,
@@ -78,15 +78,14 @@ export function getCarPositionAtProgress(
     }
   }
 
-  // Linear fallback between positions
   if (positions.length === 0) return { x: 0, y: 0 };
   if (positions.length === 1) return positions[0];
 
   const scaled = progress * (positions.length - 1);
-  const idx = Math.min(Math.floor(scaled), positions.length - 2);
-  const t = scaled - idx;
-  const a = positions[idx];
-  const b = positions[idx + 1];
+  const idx    = Math.min(Math.floor(scaled), positions.length - 2);
+  const t      = scaled - idx;
+  const a      = positions[idx];
+  const b      = positions[idx + 1];
   return {
     x: a.x + (b.x - a.x) * t,
     y: a.y + (b.y - a.y) * t,
@@ -94,23 +93,8 @@ export function getCarPositionAtProgress(
 }
 
 /**
- * Convert an SVG viewBox coordinate to a canvas pixel coordinate.
- * Needed to align the Three.js canvas car with the SVG road.
- */
-export function svgToCanvasCoords(
-  svgPoint: Position,
-  svgViewBox: { width: number; height: number },
-  canvasRect: { width: number; height: number }
-): Position {
-  return {
-    x: (svgPoint.x / svgViewBox.width) * canvasRect.width,
-    y: (svgPoint.y / svgViewBox.height) * canvasRect.height,
-  };
-}
-
-/**
- * Compute the tangent angle (in radians) at a path position.
- * Used to rotate the car to face the direction of travel.
+ * Compute the tangent angle (radians) at a path position.
+ * Used to orient the car to face the direction of travel.
  */
 export function getPathTangentAngle(
   progress: number,
@@ -118,15 +102,7 @@ export function getPathTangentAngle(
   pathEl: SVGPathElement | null
 ): number {
   const delta = 0.01;
-  const p1 = getCarPositionAtProgress(
-    Math.max(0, progress - delta),
-    positions,
-    pathEl
-  );
-  const p2 = getCarPositionAtProgress(
-    Math.min(1, progress + delta),
-    positions,
-    pathEl
-  );
+  const p1 = getCarPositionAtProgress(Math.max(0, progress - delta), positions, pathEl);
+  const p2 = getCarPositionAtProgress(Math.min(1, progress + delta), positions, pathEl);
   return Math.atan2(p2.y - p1.y, p2.x - p1.x);
 }

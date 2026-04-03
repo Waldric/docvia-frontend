@@ -2,29 +2,72 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import MilestoneNode from './MilestoneNode';
 import MilestoneModal from './MilestoneModal';
 import ConfettiOverlay from './ConfettiOverlay';
-import ThreeCarCanvas from './ThreeCarCanvas';
-import { useThreeCar } from '../hooks/useThreeCar';
 import { useRoadmapAnimation } from '../hooks/useRoadmapAnimation';
 import {
   calculateMilestonePositions,
   generatePathString,
 } from '../utils/pathCalculations';
-import type { Milestone, Position, CarScreenPosition } from '../types';
+import type { Milestone, Position } from '../types';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SVG_VIEWBOX_WIDTH  = 900;
 const SVG_VIEWBOX_HEIGHT = 380;
 const MIN_WIDTH          = 700;
 
-// Docvia brand — Three.js uses numeric hex
-const CAR_BODY_COLOR  = 0x3b82f6; // blue-500
-const CAR_ROOF_COLOR  = 0x2563eb; // blue-600
-const CAR_WHEEL_COLOR = 0x1e293b; // slate-900
-
 // ─── Props ────────────────────────────────────────────────────────────────────
 interface RoadmapCanvasProps {
   milestones: Milestone[];
   currentMilestoneIndex: number;
+}
+
+// ─── Low-poly SVG Car ─────────────────────────────────────────────────────────
+function LowPolyCar({ x, y }: { x: number; y: number }) {
+  return (
+    <g
+      transform={`translate(${x}, ${y})`}
+      style={{ filter: 'drop-shadow(2px 5px 6px rgba(0,0,0,0.35))' }}
+    >
+      {/* Ground shadow */}
+      <ellipse cx="0" cy="19" rx="32" ry="6" fill="rgba(0,0,0,0.22)" />
+
+      {/* Body facets */}
+      <polygon points="-32,15 32,15 27,5 -27,5"  fill="#C0392B" />
+      <polygon points="27,5 32,15 39,8 34,-1"     fill="#E74C3C" />
+      <polygon points="-32,15 -27,5 -38,7 -39,14" fill="#922B21" />
+      <polygon points="-27,5 27,5 22,-3 -22,-3"   fill="#E74C3C" />
+
+      {/* Cabin */}
+      <polygon points="-22,-3 -12,-14 12,-14 22,-3"  fill="#EC7063" />
+      <polygon points="-12,-14 12,-14 8,-19 -8,-19"  fill="#F1948A" />
+
+      {/* Glass */}
+      <polygon points="12,-14 22,-3 19,-12"  fill="#AED6F1" opacity="0.85" />
+      <polygon points="-12,-14 -22,-3 -19,-12" fill="#AED6F1" opacity="0.85" />
+      <polygon points="-19,-12 -12,-14 12,-14 19,-12 16,-3 -16,-3"
+        fill="#85C1E9" opacity="0.55" />
+
+      {/* Hood */}
+      <polygon points="22,-3 34,-1 30,5 27,5"  fill="#CB4335" />
+      <polygon points="22,-3 28,-6 34,-1"       fill="#EC7063" />
+
+      {/* Wheels */}
+      <circle cx="22"  cy="15" r="8"   fill="#1a1a1a" />
+      <circle cx="22"  cy="15" r="5"   fill="#2c2c2c" />
+      <circle cx="22"  cy="15" r="2.5" fill="#aaaaaa" />
+      <circle cx="-22" cy="15" r="8"   fill="#1a1a1a" />
+      <circle cx="-22" cy="15" r="5"   fill="#2c2c2c" />
+      <circle cx="-22" cy="15" r="2.5" fill="#aaaaaa" />
+
+      {/* Headlight */}
+      <rect x="32"  y="-0.5" width="6" height="4" rx="2" fill="#FEF08A" opacity="0.9" />
+      {/* Taillight */}
+      <rect x="-38" y="3"    width="5" height="4" rx="1.5" fill="#EF4444" opacity="0.9" />
+
+      {/* Door line */}
+      <line x1="-3" y1="-3" x2="-3" y2="5" stroke="#B03A2E" strokeWidth="0.7" opacity="0.5" />
+      <line x1=" 3" y1="-3" x2=" 3" y2="5" stroke="#B03A2E" strokeWidth="0.7" opacity="0.5" />
+    </g>
+  );
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -33,8 +76,8 @@ export default function RoadmapCanvas({
   currentMilestoneIndex,
 }: RoadmapCanvasProps) {
   // ── Refs ──────────────────────────────────────────────────────────────────
-  const containerRef  = useRef<HTMLDivElement>(null);
-  const pathRef       = useRef<SVGPathElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const pathRef      = useRef<SVGPathElement>(null);
 
   // ── Dimensions ────────────────────────────────────────────────────────────
   const [containerSize, setContainerSize] = useState({
@@ -51,7 +94,6 @@ export default function RoadmapCanvas({
         height: Math.max(height, SVG_VIEWBOX_HEIGHT),
       });
     };
-
     update();
     const ro = new ResizeObserver(update);
     if (containerRef.current) ro.observe(containerRef.current);
@@ -71,21 +113,16 @@ export default function RoadmapCanvas({
     );
   }, [milestones.length]);
 
-  // ── Three.js car ──────────────────────────────────────────────────────────
-  const { canvasRef, moveCar } = useThreeCar({
-    bodyColor:  CAR_BODY_COLOR,
-    roofColor:  CAR_ROOF_COLOR,
-    wheelColor: CAR_WHEEL_COLOR,
-    width:  containerSize.width,
-    height: containerSize.height,
-  });
+  // ── Car position — just ahead of the first incomplete milestone ────────────
+  const carPosition = useCallback((): Position => {
+    if (positions.length === 0) return { x: 80, y: SVG_VIEWBOX_HEIGHT / 2 };
+    // Sit just before the current milestone node
+    const idx = Math.max(0, currentMilestoneIndex - 1);
+    const pos = positions[idx];
+    return { x: pos.x - 50, y: pos.y + 8 };
+  }, [positions, currentMilestoneIndex]);
 
-  const handleCarMove = useCallback(
-    (pos: CarScreenPosition) => moveCar(pos),
-    [moveCar]
-  );
-
-  // ── Roadmap animation (progress path + car driving) ───────────────────────
+  // ── Roadmap animation (progress path) ─────────────────────────────────────
   const {
     animatedProgress,
     dashOffset,
@@ -100,26 +137,27 @@ export default function RoadmapCanvas({
     pathEl:        pathRef.current,
     svgViewBox:    { width: SVG_VIEWBOX_WIDTH, height: SVG_VIEWBOX_HEIGHT },
     containerRect: containerSize,
-    onCarMove:     handleCarMove,
+    // No car movement callback needed — car position derived from milestone index
+    onCarMove: () => {},
   });
 
   // ── Modal ─────────────────────────────────────────────────────────────────
   const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
 
   const handleStartChapter = () => {
-    // TODO: wire up to your router / reader page
     console.log('Starting chapter:', selectedMilestone?.chapter);
     setSelectedMilestone(null);
   };
 
-  // ── Derived values ────────────────────────────────────────────────────────
-  const pathString     = generatePathString(positions);
-  const progressPct    = Math.round(animatedProgress * 100);
+  // ── Derived ───────────────────────────────────────────────────────────────
+  const pathString  = generatePathString(positions);
+  const progressPct = Math.round(animatedProgress * 100);
+  const carPos      = carPosition();
 
   return (
     <div className="w-full space-y-4">
 
-      {/* ── Progress header ─────────────────────────────────────────────── */}
+      {/* ── Progress header ───────────────────────────────────────────────── */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between mb-3">
           <div>
@@ -145,32 +183,16 @@ export default function RoadmapCanvas({
         </div>
       </div>
 
-      {/* ── Roadmap canvas ──────────────────────────────────────────────── */}
-      {/*
-          Layering (bottom → top):
-          1. SVG road + milestone nodes      (z-index: 1, pointer-events: all)
-          2. Three.js car canvas             (z-index: 2, pointer-events: none)
-          3. Confetti canvas                 (z-index: 3, pointer-events: none)
-      */}
+      {/* ── Roadmap SVG ───────────────────────────────────────────────────── */}
       <div
         ref={containerRef}
         className="relative bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
         style={{ height: SVG_VIEWBOX_HEIGHT }}
       >
-
-        {/* ── Layer 3: Confetti ──────────────────────────────────────────── */}
+        {/* Confetti */}
         <ConfettiOverlay origin={confettiOrigin} active={showConfetti} />
 
-        {/* ── Layer 2: Three.js car (transparent canvas) ─────────────────── */}
-        <ThreeCarCanvas
-          ref={canvasRef}
-          width={containerSize.width}
-          height={containerSize.height}
-          zIndex={2}
-        />
-
-        {/* ── Layer 1: SVG road ──────────────────────────────────────────── */}
-        <div className="overflow-x-auto w-full h-full" style={{ zIndex: 1, position: 'relative' }}>
+        <div className="overflow-x-auto w-full h-full">
           <svg
             width={SVG_VIEWBOX_WIDTH}
             height={SVG_VIEWBOX_HEIGHT}
@@ -180,82 +202,38 @@ export default function RoadmapCanvas({
             aria-label="Learning roadmap"
           >
             <defs>
-              {/* Progress gradient */}
               <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%"   stopColor="#3B82F6" />
                 <stop offset="50%"  stopColor="#6366F1" />
                 <stop offset="100%" stopColor="#10B981" />
               </linearGradient>
-
-              {/* Glow filter for active node */}
-              <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
-                <feGaussianBlur stdDeviation="4" result="blur" />
-                <feComposite in="SourceGraphic" in2="blur" operator="over" />
-              </filter>
-
-              {/* Road shadow filter */}
               <filter id="roadShadow">
                 <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#00000020" />
               </filter>
             </defs>
 
-            {/* ── Subtle dot-grid background ──────────────────────────────── */}
+            {/* Dot-grid background */}
             <defs>
-              <pattern
-                id="dotGrid"
-                width="28"
-                height="28"
-                patternUnits="userSpaceOnUse"
-              >
+              <pattern id="dotGrid" width="28" height="28" patternUnits="userSpaceOnUse">
                 <circle cx="1" cy="1" r="1" fill="currentColor" opacity="0.06" />
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#dotGrid)" />
 
-            {/* ── Road: background track ───────────────────────────────────── */}
-            <path
-              d={pathString}
-              stroke="#E5E7EB"
-              strokeWidth="52"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="dark:stroke-gray-700"
-              filter="url(#roadShadow)"
-            />
+            {/* Road base */}
+            <path d={pathString} stroke="#E5E7EB" strokeWidth="52" fill="none"
+              strokeLinecap="round" strokeLinejoin="round"
+              className="dark:stroke-gray-700" filter="url(#roadShadow)" />
+            <path d={pathString} stroke="#D1D5DB" strokeWidth="52" fill="none"
+              strokeLinecap="round" strokeLinejoin="round"
+              className="dark:stroke-gray-700" />
+            <path d={pathString} stroke="#F9FAFB" strokeWidth="2" fill="none"
+              strokeLinecap="round" className="dark:stroke-gray-600" opacity="0.7" />
 
-            {/* Road asphalt texture (slightly darker) */}
-            <path
-              d={pathString}
-              stroke="#D1D5DB"
-              strokeWidth="52"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="dark:stroke-gray-700"
-            />
+            {/* Hidden path for geometry */}
+            <path ref={pathRef} d={pathString} fill="none" stroke="none" strokeWidth="0" />
 
-            {/* Road edge highlight (top rim) */}
-            <path
-              d={pathString}
-              stroke="#F9FAFB"
-              strokeWidth="2"
-              fill="none"
-              strokeLinecap="round"
-              className="dark:stroke-gray-600"
-              opacity="0.7"
-            />
-
-            {/* ── Hidden path for getPointAtLength ─────────────────────────── */}
-            <path
-              ref={pathRef}
-              d={pathString}
-              fill="none"
-              stroke="none"
-              strokeWidth="0"
-            />
-
-            {/* ── Progress path (colored overlay) ─────────────────────────── */}
+            {/* Progress overlay */}
             {totalPathLength > 0 && (
               <path
                 d={pathString}
@@ -266,26 +244,16 @@ export default function RoadmapCanvas({
                 strokeLinejoin="round"
                 strokeDasharray={totalPathLength}
                 strokeDashoffset={dashOffset}
-                style={{
-                  transition: 'stroke-dashoffset 1.1s cubic-bezier(0.25, 1, 0.5, 1)',
-                }}
+                style={{ transition: 'stroke-dashoffset 1.1s cubic-bezier(0.25, 1, 0.5, 1)' }}
                 opacity="0.55"
               />
             )}
 
-            {/* ── Dashed center lane marker ────────────────────────────────── */}
-            <path
-              d={pathString}
-              stroke="white"
-              strokeWidth="2"
-              strokeDasharray="12 10"
-              fill="none"
-              strokeLinecap="round"
-              opacity="0.6"
-              className="dark:opacity-30"
-            />
+            {/* Dashed center line */}
+            <path d={pathString} stroke="white" strokeWidth="2" strokeDasharray="12 10"
+              fill="none" strokeLinecap="round" opacity="0.6" className="dark:opacity-30" />
 
-            {/* ── Milestone nodes ───────────────────────────────────────────── */}
+            {/* Milestone nodes */}
             {milestones.map((milestone, index) => (
               <MilestoneNode
                 key={milestone.id}
@@ -296,11 +264,14 @@ export default function RoadmapCanvas({
                 onClick={() => setSelectedMilestone(milestone)}
               />
             ))}
+
+            {/* SVG low-poly car */}
+            <LowPolyCar x={carPos.x} y={carPos.y} />
           </svg>
         </div>
       </div>
 
-      {/* ── Legend ───────────────────────────────────────────────────────── */}
+      {/* ── Legend ────────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap gap-4 px-1 text-xs text-gray-500 dark:text-gray-400">
         {[
           { color: 'bg-emerald-500', label: 'Completed' },
@@ -315,7 +286,7 @@ export default function RoadmapCanvas({
         ))}
       </div>
 
-      {/* ── Milestone modal ──────────────────────────────────────────────── */}
+      {/* ── Milestone modal ───────────────────────────────────────────────── */}
       {selectedMilestone && (
         <MilestoneModal
           milestone={selectedMilestone}
