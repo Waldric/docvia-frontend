@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
 export const API_CONFIG = {
@@ -6,8 +8,13 @@ export const API_CONFIG = {
     auth: `${API_BASE_URL}/api/auth`,
     pdf: `${API_BASE_URL}/api/pdf`,
   },
-  getHeaders: (token?: string): Record<string, string> => ({
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  }),
+  getHeaders: (token?: string): Record<string, string> => {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
+  },
 };

@@ -68,7 +68,11 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, onSignInClick,
         [field]: e.target.type === 'checkbox' ? e.target.checked : e.target.value,
       }));
       if (errors[field]) {
-        setErrors((prev) => { const n = { ...prev }; delete n[field]; return n; });
+        setErrors((prev) => {
+          const n = { ...prev };
+          delete n[field];
+          return n;
+        });
       }
     };
 
@@ -189,7 +193,6 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, onSignInClick,
             </button>
           }
         />
-        {/* Password strength meter */}
         {formData.password && (
           <div className="mt-2">
             <div className="flex gap-1">
@@ -198,7 +201,12 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, onSignInClick,
                   key={level}
                   className="h-1 flex-1 rounded-full transition-colors duration-300"
                   style={{
-                    backgroundColor: strength.score >= level ? strength.color : theme === 'dark' ? '#334155' : '#E5E7EB',
+                    backgroundColor:
+                      strength.score >= level
+                        ? strength.color
+                        : theme === 'dark'
+                        ? '#334155'
+                        : '#E5E7EB',
                   }}
                 />
               ))}
