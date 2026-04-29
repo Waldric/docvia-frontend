@@ -6,9 +6,7 @@ import TopBar from '../components/TopBar';
 import WelcomeBanner from '../components/WelcomeBanner';
 import ReadingSection from '../components/ReadingSection';
 import StreakCard from '../components/StreakCard';
-import DeadlineBanner from '../components/DeadlineBanner';
 import { useProgressContext } from '../../../shared/contexts/ProgressContext';
-import { useDocuments } from '../../../shared/contexts/DocumentsContext';
 
 // ─── Streak Lost Modal ────────────────────────────────────────────────────────
 
@@ -87,8 +85,7 @@ function StreakLostModal({ longestStreak, onClose }: StreakLostModalProps) {
 
 export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const { streak, acknowledgeStreakLost, documentProgress } = useProgressContext();
-  const { documents } = useDocuments();
+  const { streak, acknowledgeStreakLost } = useProgressContext();
 
   // Show the modal automatically when the user loads the dashboard and
   // their streak was just detected as lost (streakJustLost flag from ProgressContext).
@@ -99,11 +96,6 @@ export default function DashboardPage() {
     setModalDismissed(true);
     acknowledgeStreakLost(); // clears the flag in storage so it won't re-appear next session
   }
-
-  // Only show banners for documents that actually have a deadline set
-  const docsWithDeadline = documents.filter(
-    (doc) => documentProgress[doc.filename]?.deadline != null
-  );
 
   return (
     <div>

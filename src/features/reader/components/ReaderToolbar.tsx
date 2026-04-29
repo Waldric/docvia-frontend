@@ -104,8 +104,44 @@ export default function ReaderToolbar({
 
       {/* Right side controls */}
       <div className="shrink-0 flex items-center gap-1.5">
-      
-        {/* Panel toggle */}
+        <button
+          onClick={onPrevLesson}
+          disabled={!hasPrev}
+          className={cn(
+            'p-2 rounded-lg transition-all duration-150',
+            hasPrev
+              ? 'text-[#6B7280] dark:text-[#94A3B8] hover:bg-gray-100 dark:hover:bg-white/10'
+              : 'text-gray-300 dark:text-gray-600 cursor-not-allowed',
+          )}
+          aria-label="Previous lesson"
+        >
+          <ChevronLeft size={18} />
+        </button>
+        <button
+          onClick={onNextLesson}
+          disabled={!hasNext}
+          className={cn(
+            'p-2 rounded-lg transition-all duration-150',
+            hasNext
+              ? 'text-[#6B7280] dark:text-[#94A3B8] hover:bg-gray-100 dark:hover:bg-white/10'
+              : 'text-gray-300 dark:text-gray-600 cursor-not-allowed',
+          )}
+          aria-label="Next lesson"
+        >
+          <ChevronRight size={18} />
+        </button>
+        <button
+          onClick={onMarkComplete}
+          className={cn(
+            'p-2 rounded-lg transition-all duration-150',
+            isCompleted
+              ? 'bg-green-600 text-white hover:bg-green-700'
+              : 'text-[#6B7280] dark:text-[#94A3B8] hover:bg-gray-100 dark:hover:bg-white/10',
+          )}
+          aria-label={isCompleted ? 'Mark lesson incomplete' : 'Mark lesson complete'}
+        >
+          <CheckCircle size={18} />
+        </button>
         <button
           onClick={onTogglePanel}
           className={cn(

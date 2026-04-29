@@ -8,6 +8,7 @@ interface RoadmapLoadingPageProps {
   apiResolved: boolean;
   onReady: () => void;
   onRetry?: () => void;
+  isTimeout?: boolean;
 }
 
 const MESSAGES = [

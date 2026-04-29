@@ -17,12 +17,12 @@ export interface ChatMessage {
 }
 
 export interface ChatResponse {
-  [x: string]: string | undefined;
   success: boolean;
   reply?: string;
   answer?: string;
   error?: string;
   message?: string;
+  [key: string]: string | boolean | undefined;
 }
 
 export interface MicrotaskQuestion {

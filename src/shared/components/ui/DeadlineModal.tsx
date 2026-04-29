@@ -7,7 +7,6 @@ interface DeadlineModalProps {
   onSave: (deadline: string) => void;
   currentDeadline?: string | null;
   pdfTitle: string;
-  isDark: boolean;
 }
 
 const PRESET_DAYS = [
@@ -24,7 +23,6 @@ export default function DeadlineModal({
   onSave,
   currentDeadline,
   pdfTitle,
-  isDark,
 }: DeadlineModalProps) {
   const [selectedDate, setSelectedDate] = useState<string>(
     currentDeadline || ''

@@ -907,7 +907,7 @@ interface LessonContentProps {
   isDark: boolean;
   deepDiveOpen: boolean;
   onGoDeeper: () => void;
-  goDeeperButtonRef: React.RefObject<HTMLButtonElement>;
+  goDeeperButtonRef: React.RefObject<HTMLButtonElement | null>;
   keyPoints: string[];
 }
 

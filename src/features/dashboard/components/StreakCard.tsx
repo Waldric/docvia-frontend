@@ -1,34 +1,17 @@
 import { useMemo, useRef, useState } from 'react';
+import DeadlineBanner from './DeadlineBanner';
 import { useProgressContext } from "../../../shared/contexts/ProgressContext";
 import { useDocuments } from "../../../shared/contexts/DocumentsContext";
 import { useTheme } from "../../../shared/contexts/ThemeContext";
 import { cn } from "../../../shared/utils/cn";
-import { Flame, CheckCircle2, Timer } from 'lucide-react';
+import { Flame } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import DeadlineBanner from './DeadlineBanner';
 
 // Ordered by JS getDay(): 0=Sun, 1=Mon, ... 6=Sat
 const DAY_SHORT = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-const DAY_FULL  = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 function localDateISO(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
-function getLast7Days(): Array<{ iso: string; short: string; full: string; isToday: boolean }> {
-  const today = new Date();
-  const result = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    result.push({
-      iso:     localDateISO(d),
-      short:   DAY_SHORT[d.getDay()],
-      full:    i === 0 ? 'Today' : i === 1 ? 'Yesterday' : DAY_FULL[d.getDay()],
-      isToday: i === 0,
-    });
-  }
-  return result;
 }
 
 function getMilestoneMessage(currentStreak: number): string {
@@ -189,150 +172,6 @@ function TooltipContent({ cardLeft, arrowLeft, dotTop, lessons, seconds, cardWid
         }}
       />
     </motion.div>
-  );
-}
-
-// ─── Day pill ─────────────────────────────────────────────────────────────────
-
-interface DayPillProps {
-  day:     { iso: string; short: string; full: string; isToday: boolean };
-  active:  boolean;
-  lessons: number;
-  seconds: number;
-}
-
-function DayPill({ day, active, lessons, seconds }: DayPillProps) {
-  const [hovered, setHovered] = useState(false);
-  const dotRef = useRef<HTMLDivElement>(null);
-
-  const [dotRect, setDotRect] = useState<{ top: number; centerX: number } | null>(null);
-
-  const CARD_W  = 176;
-  const GAP     = 8;
-
-  const handleMouseEnter = () => {
-    if (dotRef.current) {
-      const r = dotRef.current.getBoundingClientRect();
-      setDotRect({ top: r.top, centerX: r.left + r.width / 2 });
-    }
-    setHovered(true);
-  };
-
-  const cardLeft = dotRect
-    ? Math.min(
-        window.innerWidth - CARD_W - 16,
-        Math.max(16, dotRect.centerX - CARD_W / 2)
-      )
-    : 0;
-
-  const arrowLeft = dotRect ? dotRect.centerX - cardLeft : CARD_W / 2;
-
-  const intensity =
-    seconds <= 0      ? 0 :
-    seconds < 15 * 60 ? 1 :
-    seconds < 30 * 60 ? 2 : 3;
-
-  const ringColors = [
-    '',
-    'ring-2 ring-green-300 dark:ring-green-600',
-    'ring-2 ring-green-400 dark:ring-green-500',
-    'ring-2 ring-green-500 dark:ring-green-400',
-  ];
-
-  return (
-    <div
-      className="relative flex flex-col items-center gap-1.5"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={() => { setHovered(false); setDotRect(null); }}
-    >
-      <span className={cn(
-        'text-[10px] font-semibold transition-colors',
-        day.isToday ? 'text-orange-500 dark:text-orange-400' : 'text-gray-400 dark:text-gray-500'
-      )}>
-        {day.short}
-      </span>
-
-      <div
-        ref={dotRef}
-        className={cn(
-          'w-8 h-8 rounded-full transition-all duration-300 flex items-center justify-center',
-          active
-            ? 'bg-green-400 dark:bg-green-500 shadow-lg shadow-green-400/30'
-            : 'bg-gray-200 dark:bg-gray-700',
-          day.isToday && 'ring-2 ring-orange-400 ring-offset-2 dark:ring-offset-gray-800',
-          active && !day.isToday && ringColors[intensity],
-        )}
-      >
-        {active && (
-          <span className="text-white text-[10px] font-bold">
-            {lessons > 0 ? lessons : '✓'}
-          </span>
-        )}
-      </div>
-
-      <AnimatePresence>
-        {hovered && dotRect && (
-          <motion.div
-            initial={{ opacity: 0, y: 4, scale: 0.94 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{    opacity: 0, y: 2, scale: 0.96 }}
-            transition={{ duration: 0.13 }}
-            className={cn(
-              'fixed z-9999 w-44 pointer-events-none',
-              'bg-[#1e293b] dark:bg-[#0f172a] rounded-xl p-3',
-              'shadow-2xl border border-white/10',
-            )}
-            style={{
-              left: cardLeft,
-              bottom: `calc(100vh - ${dotRect.top - GAP}px)`,
-            }}
-          >
-            <p className="text-[11px] font-bold text-white mb-2">{day.full}</p>
-
-            {active ? (
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-slate-400">Lessons done</span>
-                  <span className="text-[11px] font-semibold text-green-400">
-                    {lessons > 0 ? `${lessons} lesson${lessons > 1 ? 's' : ''}` : '✓ Active'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-slate-400">Time studied</span>
-                  <span className="text-[11px] font-semibold text-purple-400">
-                    {formatTime(seconds)}
-                  </span>
-                </div>
-                <div className="mt-2">
-                  <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-linear-to-r from-green-400 to-emerald-500"
-                      style={{ width: `${Math.min(100, (seconds / (30 * 60)) * 100)}%` }}
-                    />
-                  </div>
-                  <p className="text-[9px] text-slate-500 mt-1 text-right">
-                    {intensity === 3 ? 'Great session! 🎉' : intensity === 2 ? 'Good progress' : 'Light study'}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <p className="text-[10px] text-slate-500 italic">No activity</p>
-            )}
-
-            <div
-              className="absolute top-full w-0 h-0"
-              style={{
-                left: Math.max(8, Math.min(CARD_W - 16, arrowLeft)),
-                transform: 'translateX(-50%)',
-                borderLeft:  '5px solid transparent',
-                borderRight: '5px solid transparent',
-                borderTop:   '5px solid #1e293b',
-              }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
   );
 }
 

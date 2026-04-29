@@ -84,7 +84,7 @@ interface ProgressContextValue {
   removeDocumentProgress: (documentId: string) => void;
   // ── NEW ──────────────────────────────────────────────────────────────────
   /** Set (or update) a deadline for a document. Recalculates dailyTarget. */
-  setDeadline: (documentId: string, isoDate: string) => void;
+  setDeadline: (documentId: string, isoDate: string, title?: string) => void;
   /** Remove the deadline for a document, resetting dailyTarget to 0. */
   clearDeadline: (documentId: string) => void;
 }

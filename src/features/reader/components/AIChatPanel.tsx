@@ -298,12 +298,20 @@ export default function AIChatPanel({
               <ArrowUpCircle
                 size={28} // 32 might be a bit large for a 1.5 padding button, 28 is a "sweet spot"
                 strokeWidth={2}
-                // Logic: If there is text, use your theme blue. Otherwise, use gray.
-                color={inputValue.trim() && !isTyping ? "#80AAE8" : "#94A3B8"}
-                // This creates the subtle blue inner-glow when active
+                color={
+                  inputValue.trim() && !isTyping
+                    ? isDark
+                      ? "#8CB9FF"
+                      : "#80AAE8"
+                    : isDark
+                    ? "#A3B5C8"
+                    : "#94A3B8"
+                }
                 fill={
                   inputValue.trim() && !isTyping
-                    ? "rgba(128, 170, 232, 0.1)"
+                    ? isDark
+                      ? "rgba(140, 185, 255, 0.15)"
+                      : "rgba(128, 170, 232, 0.1)"
                     : "none"
                 }
               />
@@ -315,29 +323,3 @@ export default function AIChatPanel({
   );
 }
 
-// ----- Typing indicator dots -----
-function TypingDots({ isDark }: { isDark: boolean }) {
-  return (
-    <div className="flex items-center gap-1" aria-label="AI is typing">
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          className={cn(
-            "block w-2 h-2 rounded-full",
-            isDark ? "bg-[#94A3B8]" : "bg-[#6B7280]",
-          )}
-          style={{
-            animation: `typingBounce 1.2s ease-in-out infinite`,
-            animationDelay: `${i * 0.2}s`,
-          }}
-        />
-      ))}
-      <style>{`
-        @keyframes typingBounce {
-          0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-          30% { transform: translateY(-5px); opacity: 1; }
-        }
-      `}</style>
-    </div>
-  );
-}

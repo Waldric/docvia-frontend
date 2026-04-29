@@ -594,17 +594,6 @@ function NumberNode({
 
   const pillBord = palette.border;
 
-  const titleClr =
-    isCompleted || isCurrent
-      ? palette.textAccent
-      : isLocked
-        ? isDark
-          ? "#94A3B8"
-          : "#6B7280"
-        : isDark
-          ? "#F1F5F9"
-          : "#111827";
-
   const CAR_W = 68;
   const CAR_H = 52;
   const carX = x - CAR_W / 2;
