@@ -1,0 +1,176 @@
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { useAuth } from './AuthContext';
+import { useProgressContext } from './ProgressContext';
+import * as pdfService from '../services/pdfService';
+import type { DocumentItem } from '../../features/dashboard/types';
+
+const STORAGE_KEY = (userId: string) => `docvia-documents-${userId}`;
+
+const EMPTY_PROGRESS: DocumentItem['progress'] = {
+  completedLessons: 0,
+  totalLessons: 0,
+  percentage: 0,
+  lastAccessedAt: null,
+  streakDays: 0,
+};
+
+/** Stable upload time for sorting (API date, else leading ms in filename from backend). */
+function inferUploadedAtIso(filename: string, apiDate: string): string {
+  const trimmed = apiDate.trim();
+  if (trimmed) {
+    const t = Date.parse(trimmed);
+    if (!Number.isNaN(t)) return new Date(t).toISOString();
+  }
+  const m = filename.match(/^(\d+)_/);
+  if (m) {
+    const ms = parseInt(m[1], 10);
+    if (!Number.isNaN(ms) && ms > 0) return new Date(ms).toISOString();
+  }
+  return new Date().toISOString();
+}
+
+interface DocumentsContextValue {
+  documents: DocumentItem[];
+  isLoading: boolean;
+  addDocument: (doc: DocumentItem) => void;
+  removeDocument: (filename: string) => void;
+  updateDocument: (filename: string, updates: Partial<DocumentItem>) => void;
+}
+
+const DocumentsContext = createContext<DocumentsContextValue | null>(null);
+
+export function DocumentsProvider({ children }: { children: React.ReactNode }) {
+  const { user, token } = useAuth();
+  const { removeDocumentProgress } = useProgressContext();
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user?.id) {
+      setDocuments([]);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+
+    // Load local metadata (thumbnails, progress saved by this user)
+    let local: DocumentItem[] = [];
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY(user.id));
+      local = stored ? (JSON.parse(stored) as DocumentItem[]) : [];
+    } catch {
+      local = [];
+    }
+
+    // Fetch the global backend list so every account sees every PDF
+    pdfService.listPDFs(token ?? undefined).then((backendFiles) => {
+      if (backendFiles.length === 0) {
+        // Backend unreachable — fall back to local cache
+        setDocuments(local);
+        setIsLoading(false);
+        return;
+      }
+
+      const localByFilename = new Map(local.map((d) => [d.filename, d]));
+
+      // Merge: backend is source of truth for which files exist;
+      // local cache supplies thumbnail / progress metadata
+      const merged: DocumentItem[] = backendFiles.map((f, idx) => {
+        const cached = localByFilename.get(f.filename);
+        const lastOpened = inferUploadedAtIso(f.filename, f.uploadedAt);
+        if (cached) {
+          return {
+            ...cached,
+            filename: f.filename,
+            title: cached.title || f.name,
+            lastOpened,
+            type: 'pdf',
+          };
+        }
+        return {
+          id: Date.now() + idx,
+          filename: f.filename,
+          title: f.name,
+          subtitle: '',
+          type: 'pdf' as const,
+          lastOpened,
+          coverImage: null,
+          firstPageThumbnail: null,
+          progress: EMPTY_PROGRESS,
+        };
+      });
+
+      // Persist merged list so it's available offline
+      try {
+        localStorage.setItem(STORAGE_KEY(user.id), JSON.stringify(merged));
+      } catch { /* ignore storage quota errors */ }
+
+      setDocuments(merged);
+      setIsLoading(false);
+    }).catch(() => {
+      // Backend unreachable — use local cache
+      setDocuments(local);
+      setIsLoading(false);
+    });
+  }, [user?.id, token]);
+
+  const persist = useCallback(
+    (docs: DocumentItem[]) => {
+      if (user?.id) {
+        try {
+          localStorage.setItem(STORAGE_KEY(user.id), JSON.stringify(docs));
+        } catch { /* ignore */ }
+      }
+    },
+    [user?.id]
+  );
+
+  const addDocument = useCallback(
+    (doc: DocumentItem) => {
+      setDocuments((prev) => {
+        const exists = prev.some((d) => d.filename === doc.filename);
+        const next = exists ? prev : [doc, ...prev];
+        persist(next);
+        return next;
+      });
+    },
+    [persist]
+  );
+
+  const removeDocument = useCallback(
+    (filename: string) => {
+      setDocuments((prev) => {
+        const next = prev.filter((d) => d.filename !== filename);
+        persist(next);
+        return next;
+      });
+      // Clean up associated progress data
+      removeDocumentProgress(filename);
+    },
+    [persist, removeDocumentProgress]
+  );
+
+  const updateDocument = useCallback(
+    (filename: string, updates: Partial<DocumentItem>) => {
+      setDocuments((prev) => {
+        const next = prev.map((d) => (d.filename === filename ? { ...d, ...updates } : d));
+        persist(next);
+        return next;
+      });
+    },
+    [persist]
+  );
+
+  return (
+    <DocumentsContext.Provider value={{ documents, isLoading, addDocument, removeDocument, updateDocument }}>
+      {children}
+    </DocumentsContext.Provider>
+  );
+}
+
+export function useDocuments(): DocumentsContextValue {
+  const ctx = useContext(DocumentsContext);
+  if (!ctx) throw new Error('useDocuments must be used within DocumentsProvider');
+  return ctx;
+}
